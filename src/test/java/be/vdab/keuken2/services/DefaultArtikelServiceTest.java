@@ -1,6 +1,7 @@
 package be.vdab.keuken2.services;
 
 import be.vdab.keuken2.domain.Artikel;
+import be.vdab.keuken2.domain.ArtikelGroep;
 import be.vdab.keuken2.domain.FoodArtikel;
 import be.vdab.keuken2.exceptions.ArtikelNietGevondenException;
 import be.vdab.keuken2.repositories.ArtikelRepository;
@@ -21,13 +22,15 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class DefaultArtikelServiceTest {
     private DefaultArtikelService service;
+    private ArtikelGroep artikelGroep;
     @Mock
     private ArtikelRepository repository;
     private Artikel artikel;
 
     @BeforeEach
     void beforeEach() {
-        artikel = new FoodArtikel("test", BigDecimal.ONE, BigDecimal.TEN, 1);
+        artikelGroep = new ArtikelGroep("test");
+        artikel = new FoodArtikel("test", BigDecimal.ONE, BigDecimal.TEN, 1,artikelGroep);
         service = new DefaultArtikelService(repository);
     }
 

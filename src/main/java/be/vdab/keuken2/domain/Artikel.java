@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -17,16 +18,21 @@ public abstract class Artikel {
     private String naam;
     private BigDecimal aankoopprijs;
     private BigDecimal verkoopprijs;
-    @ElementCollection @OrderBy("vanafAantal")
+    @ElementCollection
+    @OrderBy("vanafAantal")
     @CollectionTable(name = "kortingen",
             joinColumns = @JoinColumn(name = "artikelId"))
     private Set<Korting> kortingen;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "artikelgroepId")
+    private ArtikelGroep artikelGroep;
 
-    public Artikel(String naam, BigDecimal aankoopprijs, BigDecimal verkoopprijs) {
+    public Artikel(String naam, BigDecimal aankoopprijs, BigDecimal verkoopprijs, ArtikelGroep artikelGroep) {
         this.naam = naam;
         this.aankoopprijs = aankoopprijs;
         this.verkoopprijs = verkoopprijs;
         this.kortingen = new LinkedHashSet<>();
+        setArtikelGroep(artikelGroep);
     }
 
     protected Artikel() {
@@ -54,7 +60,32 @@ public abstract class Artikel {
         }
         verkoopprijs = verkoopprijs.add(bedrag);
     }
+
     public Set<Korting> getKortingen() {
         return Collections.unmodifiableSet(kortingen);
+    }
+
+    public ArtikelGroep getArtikelGroep() {
+        return artikelGroep;
+    }
+
+    public void setArtikelGroep(ArtikelGroep artikelGroep) {
+        if (!artikelGroep.getArtikels().contains(this)) {
+            artikelGroep.add(this);
+        }
+        this.artikelGroep = artikelGroep;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Artikel)) return false;
+        Artikel artikel = (Artikel) o;
+        return Objects.equals(naam, artikel.naam);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(naam);
     }
 }
