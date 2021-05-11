@@ -98,12 +98,16 @@ public class JpaArtikelRepositoryTest extends AbstractTransactionalJUnit4SpringC
 
     @Test
     void findBijNaamContains() {
-        assertThat(repository.findByNaamContains("es"))
-                .hasSize(countRowsInTableWhere(ARTIKELS,
-                        "naam like '%es%'"))
+        var artikels = repository.findByNaamContains("es");
+        manager.clear();
+        assertThat(artikels)
+                .hasSize(countRowsInTableWhere(ARTIKELS, "naam like '%es%'"))
                 .extracting(Artikel::getNaam)
-                .allSatisfy(naam -> assertThat(naam).containsIgnoringCase("es"))
+                .allSatisfy(naam -> assertThat(naam)
+                        .containsIgnoringCase("es"))
                 .isSortedAccordingTo(String::compareToIgnoreCase);
+        assertThat(artikels).extracting(Artikel::getArtikelGroep)
+                .extracting(ArtikelGroep::getNaam);
     }
 
     @Test
@@ -127,4 +131,5 @@ public class JpaArtikelRepositoryTest extends AbstractTransactionalJUnit4SpringC
                 .hasValueSatisfying(artikel ->
                         assertThat(artikel.getArtikelGroep().getNaam()).isEqualTo("test"));
     }
+
 }
